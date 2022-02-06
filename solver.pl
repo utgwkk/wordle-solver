@@ -106,7 +106,7 @@ my $try_num = 0;
 # -1: BLOW
 # 0, 1, 2, 3, 4: HIT with index
 my %chars = map { $_ => -3 } ('a'..'z');
-my @candidate_words = all_words;
+my @candidate_words = @all_words;
 my %used_words = ();
 
 while (1) {
