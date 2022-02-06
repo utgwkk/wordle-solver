@@ -43,9 +43,9 @@ sub handle_input {
 }
 
 sub choose_input_by_chars {
-    my (%chars) = @_;
+    my ($chars, $used_words) = @_;
 
-    my $predicate = build_predicate(%chars);
+    my $predicate = build_predicate($chars, $used_words);
     my @words = grep { $predicate->($_) } @all_words;
 
     die 'no candidate words' unless @words;
@@ -54,25 +54,25 @@ sub choose_input_by_chars {
 }
 
 sub choose_input {
-    my ($try_num, %chars) = @_;
+    my ($try_num, $chars, $used_words) = @_;
 
     if ($try_num == 0) {
         return 'arise';
     } elsif ($try_num == 1) {
         return 'cough';
     } else {
-        return choose_input_by_chars(%chars);
+        return choose_input_by_chars($chars, $used_words);
     }
 }
 
 sub build_predicate {
-    my (%chars) = @_;
+    my ($chars, $used_words) = @_;
 
-    my @none_chars = grep { $chars{$_} == -2 } sort keys %chars;
-    my @blow_chars = grep { $chars{$_} == -1 } sort keys %chars;
+    my @none_chars = grep { $chars->{$_} == -2 } sort keys %$chars;
+    my @blow_chars = grep { $chars->{$_} == -1 } sort keys %$chars;
     my $hit_word_re = do {
         my $re_str = '';
-        my %idx_to_ch = map { $chars{$_} => $_ } grep { $chars{$_} >= 0 } sort keys %chars;
+        my %idx_to_ch = map { $chars->{$_} => $_ } grep { $chars->{$_} >= 0 } sort keys %$chars;
         for my $idx (0..4) {
             if (exists $idx_to_ch{$idx}) {
                 $re_str .= $idx_to_ch{$idx};
@@ -86,6 +86,7 @@ sub build_predicate {
     return sub {
         my ($word) = @_;
 
+        return 0 if exists $used_words->{$word};
         return 0 unless $word =~ /$hit_word_re/x;
 
         return 0 if @none_chars && $word =~ /[@none_chars]/x;
@@ -105,9 +106,11 @@ my $try_num = 0;
 # -1: BLOW
 # 0, 1, 2, 3, 4: HIT with index
 my %chars = map { $_ => -3 } ('a'..'z');
+my %used_words = ();
 
 while (1) {
-    my $input = choose_input($try_num, %chars);
+    my $input = choose_input($try_num, \%chars, \%used_words);
+    $used_words{$input} = 1;
     my @result = handle_input($input);
     say "$input => " . join ", ", @result;
     if (is_answer(@result)) {
