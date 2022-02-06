@@ -5,7 +5,8 @@ use v5.30;
 use Carp qw(croak);
 
 sub all_words {
-    my @words = `grep -E '^[a-z]{5}\$' /usr/share/dict/words`;
+    open my $fh, '<', '/usr/share/dict/words';
+    my @words = grep { /^[a-z]{5}$/ } <$fh>;
     chomp @words;
     return @words;
 }
