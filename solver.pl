@@ -43,10 +43,10 @@ sub handle_input {
 }
 
 sub choose_input_by_chars {
-    my ($chars, $used_words) = @_;
+    my ($chars, $candidate_words, $used_words) = @_;
 
     my $predicate = build_predicate($chars, $used_words);
-    my @words = grep { $predicate->($_) } @all_words;
+    my @words = grep { $predicate->($_) } @$candidate_words;
 
     die 'no candidate words' unless @words;
 
@@ -54,14 +54,14 @@ sub choose_input_by_chars {
 }
 
 sub choose_input {
-    my ($try_num, $chars, $used_words) = @_;
+    my ($try_num, $candidate_words, $chars, $used_words) = @_;
 
     if ($try_num == 0) {
         return 'arise';
     } elsif ($try_num == 1) {
         return 'cough';
     } else {
-        return choose_input_by_chars($chars, $used_words);
+        return choose_input_by_chars($chars, $candidate_words, $used_words);
     }
 }
 
@@ -106,10 +106,11 @@ my $try_num = 0;
 # -1: BLOW
 # 0, 1, 2, 3, 4: HIT with index
 my %chars = map { $_ => -3 } ('a'..'z');
+my @candidate_words = all_words;
 my %used_words = ();
 
 while (1) {
-    my $input = choose_input($try_num, \%chars, \%used_words);
+    my $input = choose_input($try_num, \@candidate_words, \%chars, \%used_words);
     $used_words{$input} = 1;
     my @result = handle_input($input);
     say "$input => " . join ", ", @result;
@@ -127,6 +128,11 @@ while (1) {
             $chars{$input_ch} = -2;
         }
     }
+
+    @candidate_words = do {
+        my $pred = build_predicate(\%chars, \%used_words);
+        grep { $pred->($_) } @candidate_words;
+    };
 
     $try_num++;
 }
