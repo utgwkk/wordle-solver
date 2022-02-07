@@ -7,11 +7,6 @@ use Carp qw(croak);
 use Wordle::Questioner;
 use Wordle::Solver;
 
-sub is_answer {
-    my (@result) = @_;
-    return scalar(grep { $_ eq 'HIT' } @result) == 5;
-}
-
 my $questioner = Wordle::Questioner->new;
 $questioner->generate_answer;
 
@@ -23,7 +18,7 @@ while (1) {
 
     my @result = $questioner->handle_input($input);
     say "$input => " . join ", ", @result;
-    if (is_answer(@result)) {
+    if ($questioner->is_answer($input)) {
         last;
     }
 

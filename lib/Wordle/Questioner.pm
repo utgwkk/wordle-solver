@@ -16,6 +16,11 @@ sub answer {
     shift->{answer};
 }
 
+sub is_answer {
+    my ($self, $input) = @_;
+    $input eq $self->answer;
+}
+
 sub generate_answer {
     my ($self) = @_;
 
