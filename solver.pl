@@ -4,19 +4,14 @@ use v5.30;
 
 use Carp qw(croak);
 
-sub all_words {
-    open my $fh, '<', '/usr/share/dict/words';
-    my @words = grep { /^[a-z]{5}$/ } <$fh>;
-    chomp @words;
-    return @words;
-}
+use Wordle::Dictionary;
 
 sub is_answer {
     my (@result) = @_;
     return scalar(grep { $_ eq 'HIT' } @result) == 5;
 }
 
-my @all_words = all_words;
+my @all_words = Wordle::Dictionary::ALL_WORDS->@*;
 
 # server: choose words
 my $answer = $all_words[int rand @all_words];
