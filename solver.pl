@@ -23,6 +23,5 @@ while (1) {
     }
 
     $solver->mark_result($input, @result);
-    $solver->filter_candidate_words;
     $solver->increment_try_num;
 }

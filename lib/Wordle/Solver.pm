@@ -83,7 +83,7 @@ sub mark_word_as_used {
     $self->{used_words}->{$word} = 1;
 }
 
-sub filter_candidate_words {
+sub _filter_candidate_words {
     my ($self) = @_;
 
     $self->{candidate_words} = do {
@@ -105,6 +105,7 @@ sub mark_result {
             $self->{chars}->{$input_ch} = -2;
         }
     }
+    $self->_filter_candidate_words;
 }
 
 sub increment_try_num {
