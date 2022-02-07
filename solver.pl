@@ -4,6 +4,7 @@ use v5.30;
 
 use Carp qw(croak);
 
+use Wordle::Questioner;
 use Wordle::Dictionary;
 
 sub is_answer {
@@ -13,30 +14,8 @@ sub is_answer {
 
 my @all_words = Wordle::Dictionary::ALL_WORDS->@*;
 
-# server: choose words
-my $answer = $all_words[int rand @all_words];
-
-sub handle_input {
-    my ($input) = @_;
-    croak 'input length must be 5' unless length $input == 5;
-
-    my @result = ();
-
-    for my $idx (0..4) {
-        my $input_ch = substr $input, $idx, 1;
-        my $answer_ch = substr $answer, $idx, 1;
-
-        if ($input_ch eq $answer_ch) {
-            push @result, 'HIT';
-        } elsif ($answer =~ /$input_ch/x) {
-            push @result, 'BLOW';
-        } else {
-            push @result, 'NONE';
-        }
-    }
-
-    return @result;
-}
+my $questioner = Wordle::Questioner->new;
+$questioner->generate_answer;
 
 sub choose_input_by_chars {
     my ($chars, $candidate_words, $used_words) = @_;
@@ -108,7 +87,7 @@ my %used_words = ();
 while (1) {
     my $input = choose_input($try_num, \@candidate_words, \%chars, \%used_words);
     $used_words{$input} = 1;
-    my @result = handle_input($input);
+    my @result = $questioner->handle_input($input);
     say "$input => " . join ", ", @result;
     if (is_answer(@result)) {
         last;
