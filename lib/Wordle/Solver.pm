@@ -16,6 +16,7 @@ sub new {
         # 0, 1, 2, 3, 4: HIT with index
         chars => { map { $_ => -3 } 'a'..'z' },
         used_words => +{},
+        available_chars_by_position => { map { $_ => ['a'..'z'] } 0..4 },
     }, $class;
 }
 
@@ -50,13 +51,8 @@ sub _build_predicate {
     my @blow_chars = grep { $self->{chars}->{$_} == -1 } sort keys $self->{chars}->%*;
     my $hit_word_re = do {
         my $re_str = '';
-        my %idx_to_ch = map { $self->{chars}->{$_} => $_ } grep { $self->{chars}->{$_} >= 0 } sort keys $self->{chars}->%*;
         for my $idx (0..4) {
-            if (exists $idx_to_ch{$idx}) {
-                $re_str .= $idx_to_ch{$idx};
-            } else {
-                $re_str .= '.';
-            }
+            $re_str .= '[' . (join '', $self->{available_chars_by_position}->{$idx}->@*) . ']';
         }
         $re_str;
     };
@@ -99,10 +95,13 @@ sub mark_result {
         my $input_ch = substr $input, $idx, 1;
         if ($result[$idx] eq 'HIT') {
             $self->{chars}->{$input_ch} = $idx;
+            $self->{available_chars_by_position}->{$idx} = [ $input_ch ];
         } elsif ($result[$idx] eq 'BLOW') {
             $self->{chars}->{$input_ch} = -1;
+            $self->{available_chars_by_position}->{$idx} = [ grep { $_ ne $input_ch } $self->{available_chars_by_position}->{$idx}->@* ];
         } elsif ($result[$idx] eq 'NONE') {
             $self->{chars}->{$input_ch} = -2;
+            $self->{available_chars_by_position}->{$idx} = [ grep { $_ ne $input_ch } $self->{available_chars_by_position}->{$idx}->@* ];
         }
     }
     $self->_filter_candidate_words;
