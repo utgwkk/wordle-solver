@@ -21,11 +21,16 @@ sub is_answer {
     $input eq $self->answer;
 }
 
+sub set_answer {
+    my ($self, $new_answer) = @_;
+    $self->{answer} = $new_answer;
+}
+
 sub generate_answer {
     my ($self) = @_;
 
     my @all_words = Wordle::Dictionary::ALL_WORDS->@*;
-    $self->{answer} = $all_words[int rand @all_words];
+    $self->set_answer($all_words[int rand @all_words]);
 }
 
 sub handle_input {
