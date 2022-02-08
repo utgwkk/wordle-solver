@@ -5,19 +5,21 @@ use v5.30;
 use parent qw(Wordle::Questioner);
 use Carp qw(croak);
 
+sub new {
+    my ($class) = @_;
+
+    my $self = $class->SUPER::new;
+    $self->{last_result} = [];
+
+    bless $self, $class;
+}
+
 sub generate_answer {
-    my ($self) = @_;
+    # noop
+}
 
-CHOOSE_ANSWER:
-    my $new_answer = <STDIN>;
-    chomp $new_answer;
-
-    unless (length $new_answer == 5) {
-        warn 'answer must be 5 characters';
-        goto CHOOSE_ANSWER;
-    }
-
-    $self->set_answer($new_answer);
+sub set_answer {
+    # noop
 }
 
 sub handle_input {
@@ -45,7 +47,14 @@ REPLY:
         push @ret, $res;
     }
 
+    $self->{last_result} = [ @ret ];
     return @ret;
+}
+
+sub is_answer {
+    my ($self) = @_;
+
+    return scalar(grep { $_ eq 'HIT' } $self->{last_result}->@*) == 5;
 }
 
 1;
