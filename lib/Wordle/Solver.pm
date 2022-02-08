@@ -25,7 +25,7 @@ sub choose_input {
 
     if ($self->{try_num} == 0) {
         return 'arise';
-    } elsif ($self->{try_num} == 1) {
+    } elsif ($self->{try_num} == 1 && scalar(grep { $self->{chars}->{$_} >= 0 } keys $self->{chars}->%*) < 3) {
         return 'cough';
     } else {
         return $self->_choose_input_by_chars;
