@@ -91,6 +91,12 @@ sub _filter_candidate_words {
 sub mark_result {
     my ($self, $input, @result) = @_;
 
+    # Not in word list
+    unless (@result) {
+        $self->_filter_candidate_words;
+        return;
+    }
+
     for my $idx (0..4) {
         my $input_ch = substr $input, $idx, 1;
         if ($result[$idx] eq 'HIT') {

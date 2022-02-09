@@ -32,8 +32,13 @@ REPLY:
     my $result = <STDIN>;
     chomp $result;
 
+    # Not in word list
+    if ($result eq 'x') {
+        return ();
+    }
+
     unless (length $result == 5) {
-        warn 'reply must be 5 characters of h (HIT), b (BLOW), n (NONE)';
+        warn 'reply must be x (not in word list) or 5 characters of h (HIT), b (BLOW), n (NONE)';
         goto REPLY;
     }
 
